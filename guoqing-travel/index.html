@@ -5,41 +5,99 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>国庆旅游热度榜 · 查询工具</title>
   <meta name="description" content="2025 国庆实际人气 + 2026 国庆预测热度与机票紧张度查询榜单" />
-  <link rel="stylesheet" href="styles.css?v=20260903c" />
+  <link rel="stylesheet" href="styles.css?v=20260905a" />
 </head>
-<body>
-  <header class="site-header">
-    <div class="wrap">
-      <div class="brand">
-        <div class="brand-mark">🏮</div>
-        <div>
-          <h1>国庆旅游热度榜 · 查询工具</h1>
-          <p class="subtitle" id="subtitle">加载中…</p>
-        </div>
-      </div>
-      <div class="search-box">
-        <input id="search" type="search" placeholder="查城市 / 省份，例如：成都、新疆、县域…" autocomplete="off" />
-        <button id="clearBtn" type="button" title="清空">✕</button>
-      </div>
+<body id="top">
+
+  <!-- 顶部白色吸顶导航 -->
+  <header class="topnav">
+    <div class="wrap topnav-inner">
+      <a class="brand" href="#top">
+        <span class="brand-mark">🏮</span>
+        <span class="brand-name">国庆旅游热度榜</span>
+      </a>
+      <nav class="nav-links">
+        <a href="/" class="nav-link home-link">🏠 返回首页</a>
+        <a href="#top" class="nav-link active">顶部</a>
+        <a href="#rank-top" class="nav-link">榜单</a>
+        <a href="#disclaimer" class="nav-link">数据说明</a>
+      </nav>
     </div>
   </header>
 
-  <nav class="tabs wrap" id="tabs">
-    <button class="tab active" data-tab="actual">📊 去年人气（2025）</button>
-    <button class="tab" data-tab="predict">🔥 今年预测（2026）</button>
-    <button class="tab" data-tab="ticket">✈️ 机票紧张度（2026）</button>
-    <button class="tab" data-tab="county">🌿 县域 / 黑马（2026）</button>
-  </nav>
+  <!-- Hero 区：标题 + 大搜索框 -->
+  <section class="hero">
+    <div class="hero-deco hero-deco-l" aria-hidden="true">🏮</div>
+    <div class="hero-deco hero-deco-r" aria-hidden="true">🎇</div>
+    <div class="wrap hero-inner">
+      <h2 class="hero-title">2026 国庆去哪玩？<em>看数据说话</em></h2>
+      <p class="hero-sub" id="subtitle">加载中…</p>
+      <div class="search-box">
+        <input id="search" type="search" placeholder="查城市 / 省份，例如：成都、新疆、县域…" autocomplete="off" />
+        <button id="clearBtn" type="button" title="清空">✕</button>
+        <span class="search-icon" aria-hidden="true">🔍</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 四张分类入口卡片（点击切换下方榜单） -->
+  <section class="wrap cat-wrap" aria-label="榜单分类入口">
+    <button class="cat-card active" type="button" data-tab="actual">
+      <span class="cat-icon ci-red">📊</span>
+      <span class="cat-text">
+        <b>去年人气（2025）</b>
+        <small>实际接待人次冲榜</small>
+      </span>
+      <span class="cat-arrow">›</span>
+    </button>
+    <button class="cat-card" type="button" data-tab="predict">
+      <span class="cat-icon ci-orange">🔥</span>
+      <span class="cat-text">
+        <b>今年预测（2026）</b>
+        <small>预订热度预测排名</small>
+      </span>
+      <span class="cat-arrow">›</span>
+    </button>
+    <button class="cat-card" type="button" data-tab="ticket">
+      <span class="cat-icon ci-blue">✈️</span>
+      <span class="cat-text">
+        <b>机票紧张度（2026）</b>
+        <small>航班供需与价格趋势</small>
+      </span>
+      <span class="cat-arrow">›</span>
+    </button>
+    <button class="cat-card" type="button" data-tab="county">
+      <span class="cat-icon ci-green">🌿</span>
+      <span class="cat-text">
+        <b>县域 / 黑马（2026）</b>
+        <small>潜力目的地推荐</small>
+      </span>
+      <span class="cat-arrow">›</span>
+    </button>
+  </section>
+
+  <!-- 榜单区 -->
+  <main class="wrap" id="rank-top">
+    <div class="rank-head">
+      <h3 class="rank-title"><span class="rank-trophy">🏆</span> 热度榜单 <small id="updatedAt"></small></h3>
+      <nav class="tabs" id="tabs">
+        <button class="tab active" data-tab="actual">📊 去年人气（2025）</button>
+        <button class="tab" data-tab="predict">🔥 今年预测（2026）</button>
+        <button class="tab" data-tab="ticket">✈️ 机票紧张度（2026）</button>
+        <button class="tab" data-tab="county">🌿 县域 / 黑马（2026）</button>
+      </nav>
+    </div>
+    <!-- 各榜单由 app.js 渲染 -->
+    <div id="main"></div>
+  </main>
 
   <nav class="toc wrap" id="toc" aria-label="本页榜单导航"></nav>
 
-  <main class="wrap" id="main">
-    <!-- 各榜单由 app.js 渲染 -->
-  </main>
-
-  <footer class="site-footer wrap">
-    <p id="disclaimer">数据说明加载中…</p>
-    <p class="muted">数据来源：各地文旅局、携程、去哪儿、同程旅行、美团旅行、航旅纵横、中国旅游报等公开报道整理。非实时余票接口，机票以航司 / 售票平台实时查询为准。</p>
+  <footer class="site-footer">
+    <div class="wrap">
+      <p id="disclaimer">数据说明加载中…</p>
+      <p class="muted">数据来源：各地文旅局、携程、去哪儿、同程旅行、美团旅行、航旅纵横、中国旅游报等公开报道整理。非实时余票接口，机票以航司 / 售票平台实时查询为准。</p>
+    </div>
   </footer>
 
   <!-- 城市详情弹层 -->
@@ -52,7 +110,7 @@
 
   <button id="toTop" type="button" title="回到顶部" aria-label="回到顶部">↑<span>顶部</span></button>
 
-  <script src="data.js?v=20260903c"></script>
-  <script src="app.js?v=20260903c"></script>
+  <script src="data.js?v=20260904a"></script>
+  <script src="app.js?v=20260904a"></script>
 </body>
 </html>

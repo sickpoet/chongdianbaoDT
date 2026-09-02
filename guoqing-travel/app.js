@@ -33,6 +33,18 @@
     return '<span class="' + cls + '">' + arr + Math.abs(v) + "%</span>";
   }
   function rankBadge(n) { return n ? ("第 " + n + " 位") : "—"; }
+  /* 行首排名徽章：前三名金银铜奖牌，其余灰色数字 */
+  function rankCell(i) {
+    var n = i + 1;
+    if (n <= 3) return '<span class="medal m' + n + '">' + n + "</span>";
+    return '<span class="rknum">' + n + "</span>";
+  }
+  /* 相对最大值的渐变热度条 */
+  function heatBar(v, max) {
+    if (v == null || !max) return "";
+    var pct = Math.max(4, Math.round((v / max) * 100));
+    return '<div class="hbar"><i style="width:' + pct + '%"></i></div>';
+  }
   function pBadge(level) {
     if (!level) return '<span class="badge dim">—</span>';
     var p = PRESSURE[level] || { label: level, cls: "dim" };
@@ -42,7 +54,9 @@
 
   /* ---------------- 子标题 / 说明 ---------------- */
   el("subtitle").textContent =
-    "数据更新 " + D.meta.updated + " ｜ 去年：" + D.meta.holiday_2025 + " ｜ 今年：" + D.meta.holiday_2026;
+    "数据口径：文旅局实际接待（2025）+ 主流平台预订热度（2026 预测）｜ 数据更新 " + D.meta.updated;
+  var updatedAt = el("updatedAt");
+  if (updatedAt) updatedAt.textContent = "数据更新于 " + D.meta.updated;
   el("disclaimer").textContent = "口径说明：" + D.meta.disclaimer;
 
   /* ---------------- 通用表格构建 ---------------- */
@@ -58,7 +72,7 @@
         return sk.dir === "asc" ? String(va).localeCompare(String(vb), "zh") : String(vb).localeCompare(String(va), "zh");
       });
     }
-    var thead = "<tr>" + columns.map(function (c) {
+    var thead = '<tr><th class="rk-col">排名</th>' + columns.map(function (c) {
       var sorted = sk && sk.key === c.key;
       var arrow = sorted ? (sk.dir === "asc" ? "▲" : "▼") : "↕";
       return '<th data-key="' + c.key + '" class="' + (sorted ? "sorted" : "") + '">' + esc(c.label) +
@@ -70,11 +84,11 @@
         var v = c.fmt ? c.fmt(r) : fmt(r[c.key]);
         return "<td" + (c.num ? ' class="num"' : "") + ">" + v + "</td>";
       }).join("");
-      return '<tr data-row="' + i + '">' + tds + "</tr>";
+      return '<tr data-row="' + i + '"><td class="rk-cell">' + rankCell(i) + "</td>" + tds + "</tr>";
     }).join("");
 
     var html = '<div class="table-scroll"><table><thead>' + thead + "</thead><tbody>" +
-      (tbody || '<tr><td colspan="' + columns.length + '" class="muted">无匹配结果</td></tr>') +
+      (tbody || '<tr><td colspan="' + (columns.length + 1) + '" class="muted">无匹配结果</td></tr>') +
       "</tbody></table></div>";
 
     var wrap = document.createElement("div");
@@ -198,10 +212,11 @@
     // 城市综合热度
     var cities = D.cities.filter(function (c) { return hit(q, c.city + c.province); })
       .sort(function (a, b) { return b.heat_score - a.heat_score; });
+    var maxHeat = cities.length ? cities[0].heat_score : 0;
     var cols = [
       { key: "city", label: "城市", fmt: function (r) { return esc(r.city); } },
       { key: "province", label: "省份", fmt: function (r) { return esc(r.province); } },
-      { key: "heat_score", label: "综合热度", num: true, fmt: function (r) { return "<b>" + fmt(r.heat_score, 1) + "</b>"; } },
+      { key: "heat_score", label: "综合热度", num: true, fmt: function (r) { return "<b>" + fmt(r.heat_score, 1) + "</b>" + heatBar(r.heat_score, maxHeat); } },
       { key: "visits_wan", label: "去年接待(万)", num: true, fmt: function (r) { return r.has_2025 ? fmt(r.visits_wan, 0) : "—"; } },
       { key: "flight_rank", label: "机票榜", fmt: function (r) { return rankBadge(r.flight_rank); } },
       { key: "hotel_tongcheng_rank", label: "提前订榜", fmt: function (r) { return rankBadge(r.hotel_tongcheng_rank); } },
@@ -323,12 +338,13 @@
 
     // 县域综合
     var counties = D.counties.filter(function (c) { return hit(q, c.name); });
+    var maxCounty = counties.reduce(function (m, c) { return Math.max(m, c.score || 0); }, 0);
     var cCols = [
       { key: "name", label: "县域", fmt: function (r) { return esc(r.name); } },
       { key: "tongcheng_rank", label: "同程榜", fmt: function (r) { return rankBadge(r.tongcheng_rank); } },
       { key: "qunar_rank", label: "去哪儿榜", fmt: function (r) { return rankBadge(r.qunar_rank); } },
       { key: "both", label: "双榜", fmt: function (r) { return r.both ? '<span class="badge normal">双榜</span>' : "—"; } },
-      { key: "score", label: "热度分", num: true, fmt: function (r) { return "<b>" + fmt(r.score, 1) + "</b>"; } }
+      { key: "score", label: "热度分", num: true, fmt: function (r) { return "<b>" + fmt(r.score, 1) + "</b>" + heatBar(r.score, maxCounty); } }
     ];
     main.appendChild(card(
       "县域目的地热度榜（2026）",
@@ -436,21 +452,43 @@
     else if (state.tab === "ticket") renderTicket();
     else if (state.tab === "county") renderCounty();
     buildToc(state.tab);
-    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   /* ---------------- 事件 ---------------- */
+  /* 切换榜单：顶部胶囊 tab 与 Hero 下方分类卡片共用；切换后滚到榜单区 */
+  function setTab(tab, scrollToRank) {
+    document.querySelectorAll(".tab").forEach(function (t) { t.classList.toggle("active", t.getAttribute("data-tab") === tab); });
+    document.querySelectorAll(".cat-card").forEach(function (c) { c.classList.toggle("active", c.getAttribute("data-tab") === tab); });
+    state.tab = tab;
+    render();
+    if (scrollToRank) el("rank-top").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
   document.getElementById("tabs").addEventListener("click", function (e) {
     var btn = e.target.closest(".tab");
     if (!btn) return;
-    document.querySelectorAll(".tab").forEach(function (t) { t.classList.remove("active"); });
-    btn.classList.add("active");
-    state.tab = btn.getAttribute("data-tab");
+    setTab(btn.getAttribute("data-tab"), false);
+  });
+  var catWrap = document.querySelector(".cat-wrap");
+  if (catWrap) {
+    catWrap.addEventListener("click", function (e) {
+      var card = e.target.closest(".cat-card");
+      if (!card) return;
+      setTab(card.getAttribute("data-tab"), true);
+    });
+  }
+  var searchInput = el("search");
+  searchInput.addEventListener("input", function () {
+    state.q = searchInput.value.trim();
+    var box = searchInput.closest(".search-box");
+    if (box) box.classList.toggle("has-value", !!state.q);
     render();
   });
-  var searchInput = el("search");
-  searchInput.addEventListener("input", function () { state.q = searchInput.value.trim(); render(); });
-  el("clearBtn").addEventListener("click", function () { searchInput.value = ""; state.q = ""; render(); searchInput.focus(); });
+  el("clearBtn").addEventListener("click", function () {
+    searchInput.value = ""; state.q = "";
+    var box = searchInput.closest(".search-box");
+    if (box) box.classList.remove("has-value");
+    render(); searchInput.focus();
+  });
   el("modalClose").addEventListener("click", closeModal);
   el("modal").addEventListener("click", function (e) { if (e.target === el("modal")) closeModal(); });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeModal(); });
