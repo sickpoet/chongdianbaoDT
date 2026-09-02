@@ -6,7 +6,7 @@
 
   var PRESSURE = {
     sold_out: { label: "已售罄", cls: "sold_out" },
-    tight: { label: "紧张·无折扣", cls: "tight" },
+    tight: { label: "紧张", cls: "tight" },
     normal: { label: "正常", cls: "normal" },
     cheap: { label: "价格低位", cls: "cheap" }
   };
@@ -39,11 +39,13 @@
     if (n <= 3) return '<span class="medal m' + n + '">' + n + "</span>";
     return '<span class="rknum">' + n + "</span>";
   }
-  /* 相对最大值的渐变热度条 */
+  /* 相对最大值的热度：墨分五色，离散五级比渐变条更容易横向比较 */
   function heatBar(v, max) {
     if (v == null || !max) return "";
-    var pct = Math.max(4, Math.round((v / max) * 100));
-    return '<div class="hbar"><i style="width:' + pct + '%"></i></div>';
+    var level = Math.max(1, Math.min(5, Math.ceil((v / max) * 5)));
+    var seg = "";
+    for (var i = 1; i <= 5; i++) seg += '<i class="' + (i <= level ? "on" : "") + '"></i>';
+    return '<div class="hbar" aria-hidden="true">' + seg + "</div>";
   }
   function pBadge(level) {
     if (!level) return '<span class="badge dim">—</span>';
@@ -54,7 +56,7 @@
 
   /* ---------------- 子标题 / 说明 ---------------- */
   el("subtitle").textContent =
-    "数据口径：文旅局实际接待（2025）+ 主流平台预订热度（2026 预测）｜ 数据更新 " + D.meta.updated;
+    "口径：文旅局实际接待（2025）与主流平台预订热度（2026 预测）。";
   var updatedAt = el("updatedAt");
   if (updatedAt) updatedAt.textContent = "数据更新于 " + D.meta.updated;
   el("disclaimer").textContent = "口径说明：" + D.meta.disclaimer;
@@ -169,13 +171,13 @@
 
     main.innerHTML = "";
     main.appendChild(card(
-      "城市接待量 Top（2025 国庆中秋实际）",
+      "城市接待量榜（2025 国庆中秋实际）",
       "去年国庆哪些城市人流量最高——按全市接待人次排序，点击行看详情。",
       table("actual-city", cityCols, cities, openCity),
       "各地文旅局", "actual-city"
     ));
     main.appendChild(card(
-      "省份接待量 Top（2025）",
+      "省份接待量榜（2025）",
       "部分省份未单列城市口径，跨城比较仅供参考。",
       table("actual-prov", provCols, provs),
       "30 省份文旅成绩单", "actual-prov"
@@ -203,10 +205,10 @@
     ref.className = "card";
     ref.id = "predict-ref";
     ref.innerHTML = "<h3>2026 预订 / 热度信号（参考榜单）</h3><p class='board-desc'>今年国庆哪些城市可能人流量高——多平台预订数据，按平台分列。</p>";
-    ref.appendChild(subSection("✈️ 机票预订 TOP10", D.rankings.flight.meta.source, chips(D.rankings.flight.list, null, 10)));
-    ref.appendChild(subSection("🏨 同程 · 提前订 TOP10", "同程旅行", chips(D.rankings.hotel_tongcheng.list, null, 10)));
-    ref.appendChild(subSection("🏨 去哪儿 · 酒店抢订 TOP10", "去哪儿旅行", chips(D.rankings.hotel_qunar.list, null, 10)));
-    ref.appendChild(subSection("🗺️ 长线游热门省份", "平台综合", chips(D.rankings.longhaul.list, null, 5)));
+    ref.appendChild(subSection("机票预订前十", D.rankings.flight.meta.source, chips(D.rankings.flight.list, null, 10)));
+    ref.appendChild(subSection("同程旅行提前订前十", "同程旅行", chips(D.rankings.hotel_tongcheng.list, null, 10)));
+    ref.appendChild(subSection("去哪儿酒店抢订前十", "去哪儿旅行", chips(D.rankings.hotel_qunar.list, null, 10)));
+    ref.appendChild(subSection("长线游热门省份", "平台综合", chips(D.rankings.longhaul.list, null, 5)));
     main.appendChild(ref);
 
     // 城市综合热度
@@ -251,7 +253,7 @@
     var flightBox = document.createElement("div");
     flightBox.className = "card";
     flightBox.id = "ticket-flight";
-    flightBox.innerHTML = "<h3>机票预订最热城市 TOP10（2026）</h3><p class='board-desc'>预订量越高，高峰日机票越容易被抢光——这是「卖得差不多了」的主要代理信号（非实时售罄）。</p>";
+    flightBox.innerHTML = "<h3>机票预订最热城市前十（2026）</h3><p class='board-desc'>预订量越高，高峰日机票越容易被抢光。这是「卖得差不多了」的主要代理信号，不是实时售罄状态。</p>";
     var flightRows = D.rankings.flight.list.map(function (name, i) {
       var rec = D.cities.filter(function (c) { return c.city === name; })[0];
       return { rank: i + 1, city: name, province: rec ? rec.province : "—", flight_rank: i + 1 };
@@ -332,8 +334,8 @@
     ref.className = "card";
     ref.id = "county-ref";
     ref.innerHTML = "<h3>县域目的地参考榜单（2026）</h3><p class='board-desc'>「奔县反向游」成黑马——年轻人避开人挤人，转向县域小城，按平台分列。</p>";
-    ref.appendChild(subSection("🏨 同程 · 县域 TOP10", "同程旅行", chips(D.rankings.county_tongcheng.list, null, 10)));
-    ref.appendChild(subSection("🏨 去哪儿 · 县域 TOP10", "去哪儿旅行", chips(D.rankings.county_qunar.list, null, 10)));
+    ref.appendChild(subSection("同程旅行县域前十", "同程旅行", chips(D.rankings.county_tongcheng.list, null, 10)));
+    ref.appendChild(subSection("去哪儿县域前十", "去哪儿旅行", chips(D.rankings.county_qunar.list, null, 10)));
     main.appendChild(ref);
 
     // 县域综合
@@ -377,7 +379,7 @@
     var c = row;
     var body = el("modalBody");
     var html = "<h2>" + esc(c.city) + "</h2><div class='prov'>" + esc(c.province) +
-      (c.has_2025 ? " ｜ 2025 全市接待 " + fmt(c.visits_wan, 0) + " 万人次" : " ｜ 暂无 2025 全市口径") + "</div>";
+      (c.has_2025 ? "，2025 全市接待 " + fmt(c.visits_wan, 0) + " 万人次" : "，暂无 2025 全市口径") + "</div>";
 
     if (c.has_2025) {
       html += "<div class='detail-section'><h4>2025 国庆实际</h4><div class='stat-grid'>" +
@@ -425,9 +427,9 @@
 
   /* ---------------- 渲染调度 ---------------- */
   var SECTIONS = {
-    actual: [["actual-city", "城市接待量 Top"], ["actual-prov", "省份接待量 Top"], ["actual-partial", "监测/订单口径城市"]],
+    actual: [["actual-city", "城市接待量榜"], ["actual-prov", "省份接待量榜"], ["actual-partial", "监测/订单口径城市"]],
     predict: [["predict-ref", "预订热度信号(多平台)"], ["predict-heat", "城市综合热度榜"]],
-    ticket: [["ticket-sig", "全国出行信号"], ["ticket-flight", "机票预订最热 TOP10"], ["ticket-city", "城市机票紧张度"], ["ticket-route", "长线/赏秋航线增幅"], ["ticket-press", "机票紧张/低价清单"]],
+    ticket: [["ticket-sig", "全国出行信号"], ["ticket-flight", "机票预订最热前十"], ["ticket-city", "城市机票紧张度"], ["ticket-route", "长线/赏秋航线增幅"], ["ticket-press", "机票紧张/低价清单"]],
     county: [["county-ref", "县域参考榜单"], ["county-heat", "县域热度榜"], ["county-dark", "城市黑马榜"]]
   };
 

@@ -5,19 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>国庆旅游热度榜 · 查询工具</title>
   <meta name="description" content="2025 国庆实际人气 + 2026 国庆预测热度与机票紧张度查询榜单" />
-  <link rel="stylesheet" href="styles.css?v=20260905a" />
+  <link rel="stylesheet" href="styles.css?v=20260903song" />
 </head>
 <body id="top">
 
-  <!-- 顶部白色吸顶导航 -->
   <header class="topnav">
     <div class="wrap topnav-inner">
       <a class="brand" href="#top">
-        <span class="brand-mark">🏮</span>
+        <span class="seal" aria-hidden="true">榜</span>
         <span class="brand-name">国庆旅游热度榜</span>
       </a>
       <nav class="nav-links">
-        <a href="/" class="nav-link home-link">🏠 返回首页</a>
+        <a href="/" class="nav-link home-link">
+          <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M11.5 5.5 L7 10 l4.5 4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          返回首页
+        </a>
         <a href="#top" class="nav-link active">顶部</a>
         <a href="#rank-top" class="nav-link">榜单</a>
         <a href="#disclaimer" class="nav-link">数据说明</a>
@@ -25,66 +27,63 @@
     </div>
   </header>
 
-  <!-- Hero 区：标题 + 大搜索框 -->
   <section class="hero">
-    <div class="hero-deco hero-deco-l" aria-hidden="true">🏮</div>
-    <div class="hero-deco hero-deco-r" aria-hidden="true">🎇</div>
-    <div class="wrap hero-inner">
-      <h2 class="hero-title">2026 国庆去哪玩？<em>看数据说话</em></h2>
-      <p class="hero-sub" id="subtitle">加载中…</p>
-      <div class="search-box">
-        <input id="search" type="search" placeholder="查城市 / 省份，例如：成都、新疆、县域…" autocomplete="off" />
-        <button id="clearBtn" type="button" title="清空">✕</button>
-        <span class="search-icon" aria-hidden="true">🔍</span>
+    <div class="wrap">
+      <div class="hero-inner">
+        <h1 class="hero-title">2026 国庆<em>去哪玩</em></h1>
+        <p class="hero-lede">去年哪儿最挤，今年哪儿在涨，机票还剩多少余量。</p>
+        <div class="search-box">
+          <input id="search" type="search" placeholder="查城市或省份，例如：成都、新疆、县域" autocomplete="off" aria-label="查城市或省份" />
+          <span class="search-icon" aria-hidden="true">
+            <svg class="ico" viewBox="0 0 20 20"><circle cx="8.8" cy="8.8" r="5.3"/><path d="M12.8 12.8 L17 17" stroke-linecap="round"/></svg>
+          </span>
+          <button id="clearBtn" type="button" title="清空" aria-label="清空搜索">×</button>
+        </div>
       </div>
     </div>
+    <div class="hero-seal" aria-hidden="true"><span>国</span><span>庆</span></div>
   </section>
 
-  <!-- 四张分类入口卡片（点击切换下方榜单） -->
   <section class="wrap cat-wrap" aria-label="榜单分类入口">
     <button class="cat-card active" type="button" data-tab="actual">
-      <span class="cat-icon ci-red">📊</span>
+      <span class="cat-icon" aria-hidden="true">实</span>
       <span class="cat-text">
-        <b>去年人气（2025）</b>
-        <small>实际接待人次冲榜</small>
+        <b>去年人气</b>
+        <small>2025 实际接待人次</small>
       </span>
-      <span class="cat-arrow">›</span>
     </button>
     <button class="cat-card" type="button" data-tab="predict">
-      <span class="cat-icon ci-orange">🔥</span>
+      <span class="cat-icon" aria-hidden="true">预</span>
       <span class="cat-text">
-        <b>今年预测（2026）</b>
-        <small>预订热度预测排名</small>
+        <b>今年预测</b>
+        <small>2026 预订热度排名</small>
       </span>
-      <span class="cat-arrow">›</span>
     </button>
     <button class="cat-card" type="button" data-tab="ticket">
-      <span class="cat-icon ci-blue">✈️</span>
+      <span class="cat-icon" aria-hidden="true">票</span>
       <span class="cat-text">
-        <b>机票紧张度（2026）</b>
-        <small>航班供需与价格趋势</small>
+        <b>机票紧张度</b>
+        <small>2026 航班供需与价格</small>
       </span>
-      <span class="cat-arrow">›</span>
     </button>
     <button class="cat-card" type="button" data-tab="county">
-      <span class="cat-icon ci-green">🌿</span>
+      <span class="cat-icon" aria-hidden="true">县</span>
       <span class="cat-text">
-        <b>县域 / 黑马（2026）</b>
-        <small>潜力目的地推荐</small>
+        <b>县域黑马</b>
+        <small>2026 潜力目的地</small>
       </span>
-      <span class="cat-arrow">›</span>
     </button>
   </section>
 
-  <!-- 榜单区 -->
   <main class="wrap" id="rank-top">
     <div class="rank-head">
-      <h3 class="rank-title"><span class="rank-trophy">🏆</span> 热度榜单 <small id="updatedAt"></small></h3>
+      <h2 class="rank-title">热度榜单 <small id="updatedAt"></small></h2>
+      <p class="hero-sub" id="subtitle">加载中…</p>
       <nav class="tabs" id="tabs">
-        <button class="tab active" data-tab="actual">📊 去年人气（2025）</button>
-        <button class="tab" data-tab="predict">🔥 今年预测（2026）</button>
-        <button class="tab" data-tab="ticket">✈️ 机票紧张度（2026）</button>
-        <button class="tab" data-tab="county">🌿 县域 / 黑马（2026）</button>
+        <button class="tab active" data-tab="actual">去年人气 2025</button>
+        <button class="tab" data-tab="predict">今年预测 2026</button>
+        <button class="tab" data-tab="ticket">机票紧张度 2026</button>
+        <button class="tab" data-tab="county">县域黑马 2026</button>
       </nav>
     </div>
     <!-- 各榜单由 app.js 渲染 -->
@@ -96,21 +95,21 @@
   <footer class="site-footer">
     <div class="wrap">
       <p id="disclaimer">数据说明加载中…</p>
-      <p class="muted">数据来源：各地文旅局、携程、去哪儿、同程旅行、美团旅行、航旅纵横、中国旅游报等公开报道整理。非实时余票接口，机票以航司 / 售票平台实时查询为准。</p>
+      <p class="muted">数据来源：各地文旅局、携程、去哪儿、同程旅行、美团旅行、航旅纵横、中国旅游报等公开报道整理。非实时余票接口，机票以航司或售票平台实时查询为准。</p>
     </div>
   </footer>
 
   <!-- 城市详情弹层 -->
   <div class="modal-backdrop" id="modal" hidden>
     <div class="modal" role="dialog" aria-modal="true">
-      <button class="modal-close" id="modalClose" type="button">✕</button>
+      <button class="modal-close" id="modalClose" type="button" aria-label="关闭">×</button>
       <div id="modalBody"></div>
     </div>
   </div>
 
-  <button id="toTop" type="button" title="回到顶部" aria-label="回到顶部">↑<span>顶部</span></button>
+  <button id="toTop" type="button" title="回到顶部" aria-label="回到顶部">顶<span>顶部</span></button>
 
-  <script src="data.js?v=20260904a"></script>
-  <script src="app.js?v=20260904a"></script>
+  <script src="data.js?v=20260903song"></script>
+  <script src="app.js?v=20260903song"></script>
 </body>
 </html>

@@ -13,3 +13,6 @@ env/
 .DS_Store
 Thumbs.db
 .vercel
+
+# 改版验收用的截图对比，不进仓库
+design-review/
