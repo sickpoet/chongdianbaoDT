@@ -98,7 +98,10 @@ def html_page(title: str, body: str, main_content_style: str = "") -> str:
   </style>
 </head>
 <body>
-  <h1>{safe_title}</h1>
+  <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+    <h1 style="margin:0;">{safe_title}</h1>
+    <a href="/" style="white-space:nowrap; font-weight:600; padding:8px 14px; border:1px solid #e5e7eb; border-radius:8px; background:#f9fafb;">🏠 返回首页</a>
+  </div>
   <div class="muted">部署在 Vercel 的轻量版（功能覆盖：搜索/测算/简报）。本地完整版仍用 Streamlit。</div>
   {api_status}
   <div style="margin-top: 24px; {main_content_style}">
