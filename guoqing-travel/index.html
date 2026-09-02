@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>国庆旅游热度榜 · 查询工具</title>
   <meta name="description" content="2025 国庆实际人气 + 2026 国庆预测热度与机票紧张度查询榜单" />
-  <link rel="stylesheet" href="styles.css?v=20260903b" />
+  <link rel="stylesheet" href="styles.css?v=20260903c" />
 </head>
 <body>
   <header class="site-header">
@@ -31,6 +31,8 @@
     <button class="tab" data-tab="county">🌿 县域 / 黑马（2026）</button>
   </nav>
 
+  <nav class="toc wrap" id="toc" aria-label="本页榜单导航"></nav>
+
   <main class="wrap" id="main">
     <!-- 各榜单由 app.js 渲染 -->
   </main>
@@ -48,7 +50,9 @@
     </div>
   </div>
 
-  <script src="data.js?v=20260903b"></script>
-  <script src="app.js?v=20260903b"></script>
+  <button id="toTop" type="button" title="回到顶部" aria-label="回到顶部">↑<span>顶部</span></button>
+
+  <script src="data.js?v=20260903c"></script>
+  <script src="app.js?v=20260903c"></script>
 </body>
 </html>

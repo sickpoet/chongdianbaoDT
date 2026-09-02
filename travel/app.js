@@ -96,13 +96,23 @@
     return wrap;
   }
 
-  function card(title, desc, node, src) {
+  function card(title, desc, node, src, id) {
     var c = document.createElement("div");
     c.className = "card";
+    if (id) c.id = id;
     c.innerHTML = "<h3>" + esc(title) + "</h3>" + (desc ? '<p class="board-desc">' + esc(desc) + "</p>" : "");
     c.appendChild(node);
     if (src) { var s = document.createElement("div"); s.className = "src"; s.textContent = "来源：" + src; c.appendChild(s); }
     return c;
+  }
+
+  /* 参考榜内：带平台来源标题的子区块，避免多平台数据挤在一起 */
+  function subSection(title, src, node) {
+    var s = document.createElement("div");
+    s.className = "sub";
+    s.innerHTML = "<h4>" + esc(title) + (src ? ' <span class="sub-src">' + esc(src) + "</span>" : "") + "</h4>";
+    s.appendChild(node);
+    return s;
   }
 
   function chips(list, meta, max) {
@@ -148,18 +158,19 @@
       "城市接待量 Top（2025 国庆中秋实际）",
       "去年国庆哪些城市人流量最高——按全市接待人次排序，点击行看详情。",
       table("actual-city", cityCols, cities, openCity),
-      "各地文旅局"
+      "各地文旅局", "actual-city"
     ));
     main.appendChild(card(
       "省份接待量 Top（2025）",
       "部分省份未单列城市口径，跨城比较仅供参考。",
       table("actual-prov", provCols, provs),
-      "30 省份文旅成绩单"
+      "30 省份文旅成绩单", "actual-prov"
     ));
 
     if (D.cities_2025_partial && D.cities_2025_partial.length && !q) {
       var note = document.createElement("div");
       note.className = "card";
+      note.id = "actual-partial";
       note.innerHTML = "<h3>仅有监测 / 订单口径的城市</h3><p class='board-desc'>以下城市未公布全市接待人次，以监测口径或平台订单量替代，不参与上方排序。</p>" +
         D.cities_2025_partial.map(function (p) {
           return "<div class='kv'><span class='k'>" + esc(p.city) + "（" + esc(p.province) + "）</span><span>" + esc(p.note) + "</span></div>";
@@ -173,14 +184,15 @@
     var q = state.q;
     main.innerHTML = "";
 
-    // 参考榜单
+    // 参考榜单（按平台分列，避免一眼全是地名）
     var ref = document.createElement("div");
     ref.className = "card";
-    ref.innerHTML = "<h3>2026 预订 / 热度信号（参考榜单）</h3><p class='board-desc'>今年国庆哪些城市可能人流量高——来自机票、酒店预订与平台热度。</p>";
-    ref.appendChild(chips(D.rankings.flight.list, D.rankings.flight.meta.source + " 机票 TOP10", 10));
-    ref.appendChild(chips(D.rankings.hotel_tongcheng.list, "同程提前订 TOP10", 10));
-    ref.appendChild(chips(D.rankings.hotel_qunar.list, "去哪儿酒店抢订 TOP10", 10));
-    ref.appendChild(chips(D.rankings.longhaul.list, "长线游热门省份", 5));
+    ref.id = "predict-ref";
+    ref.innerHTML = "<h3>2026 预订 / 热度信号（参考榜单）</h3><p class='board-desc'>今年国庆哪些城市可能人流量高——多平台预订数据，按平台分列。</p>";
+    ref.appendChild(subSection("✈️ 机票预订 TOP10", D.rankings.flight.meta.source, chips(D.rankings.flight.list, null, 10)));
+    ref.appendChild(subSection("🏨 同程 · 提前订 TOP10", "同程旅行", chips(D.rankings.hotel_tongcheng.list, null, 10)));
+    ref.appendChild(subSection("🏨 去哪儿 · 酒店抢订 TOP10", "去哪儿旅行", chips(D.rankings.hotel_qunar.list, null, 10)));
+    ref.appendChild(subSection("🗺️ 长线游热门省份", "平台综合", chips(D.rankings.longhaul.list, null, 5)));
     main.appendChild(ref);
 
     // 城市综合热度
@@ -200,7 +212,7 @@
       "城市综合热度榜（2026 预测）",
       "综合 = 去年基数 + 今年机票/酒店榜单位次 + 长线省份 + 机票紧张度。点击行看评分拆解。",
       table("predict", cols, cities, openCity),
-      "多平台预订数据加权"
+      "多平台预订数据加权", "predict-heat"
     ));
   }
 
@@ -212,6 +224,7 @@
     // 全国信号
     var sig = document.createElement("div");
     sig.className = "card";
+    sig.id = "ticket-sig";
     sig.innerHTML = "<h3>2026 全国出行信号</h3><div class='chips'>" +
       D.national_2026.map(function (n) {
         return "<span class='chip'><b>" + esc(n.metric) + "</b>：" + esc(n.value) +
@@ -222,6 +235,7 @@
     // 机票预订最热（紧张代理）
     var flightBox = document.createElement("div");
     flightBox.className = "card";
+    flightBox.id = "ticket-flight";
     flightBox.innerHTML = "<h3>机票预订最热城市 TOP10（2026）</h3><p class='board-desc'>预订量越高，高峰日机票越容易被抢光——这是「卖得差不多了」的主要代理信号（非实时售罄）。</p>";
     var flightRows = D.rankings.flight.list.map(function (name, i) {
       var rec = D.cities.filter(function (c) { return c.city === name; })[0];
@@ -258,12 +272,13 @@
       "城市机票紧张度（今年国庆）",
       "哪些城市机票已卖得差不多了——按公开报道的紧张等级排序，点击行看完整证据。",
       table("ticket-city", pCols, cityP, openCity),
-      "航旅纵横 / 航司售票部门 / 广西机场集团"
+      "航旅纵横 / 航司售票部门 / 广西机场集团", "ticket-city"
     ));
 
     // 航线增幅
     var routeBox = document.createElement("div");
     routeBox.className = "card";
+    routeBox.id = "ticket-route";
     routeBox.innerHTML = "<h3>长线 / 赏秋航线增幅（2026）</h3><p class='board-desc'>对角线赏秋与长航线预订暴涨，进藏、新疆、延吉等小机场尤为紧张。</p>";
     var rCols = [
       { key: "route", label: "航线 / 城市", fmt: function (r) { return esc(r.route); } },
@@ -279,6 +294,7 @@
     // 售罄 / 紧张清单
     var pressBox = document.createElement("div");
     pressBox.className = "card";
+    pressBox.id = "ticket-press";
     pressBox.innerHTML = "<h3>机票紧张 / 低价清单（公开报道级证据）</h3><p class='board-desc'>国内整体仍有低价窗口；南宁等枢纽出发的高峰日（9/30-10/1、10/6-10/7）票价偏高、折扣票少。</p>";
     var pCols2 = [
       { key: "scope", label: "范围", fmt: function (r) { return esc(r.scope); } },
@@ -299,9 +315,10 @@
 
     var ref = document.createElement("div");
     ref.className = "card";
-    ref.innerHTML = "<h3>县域目的地参考榜单（2026）</h3><p class='board-desc'>「奔县反向游」成黑马——年轻人避开人挤人，转向县域小城。</p>";
-    ref.appendChild(chips(D.rankings.county_tongcheng.list, "同程 TOP10", 10));
-    ref.appendChild(chips(D.rankings.county_qunar.list, "去哪儿 TOP10", 10));
+    ref.id = "county-ref";
+    ref.innerHTML = "<h3>县域目的地参考榜单（2026）</h3><p class='board-desc'>「奔县反向游」成黑马——年轻人避开人挤人，转向县域小城，按平台分列。</p>";
+    ref.appendChild(subSection("🏨 同程 · 县域 TOP10", "同程旅行", chips(D.rankings.county_tongcheng.list, null, 10)));
+    ref.appendChild(subSection("🏨 去哪儿 · 县域 TOP10", "去哪儿旅行", chips(D.rankings.county_qunar.list, null, 10)));
     main.appendChild(ref);
 
     // 县域综合
@@ -317,7 +334,7 @@
       "县域目的地热度榜（2026）",
       "合并同程与去哪儿两个榜单，双榜同时上榜额外加权。",
       table("county", cCols, counties),
-      "同程旅行 / 去哪儿旅行"
+      "同程旅行 / 去哪儿旅行", "county-heat"
     ));
 
     // 城市黑马
@@ -335,7 +352,7 @@
       "城市黑马榜（低基数 + 高增速）",
       "黑马分 = 低接待基数 + 航线增幅 + 榜单位次；去年基数越小、今年涨势越猛越「黑」。",
       table("dark", dCols, dark, openCity),
-      "综合推算"
+      "综合推算", "county-dark"
     ));
   }
 
@@ -391,11 +408,34 @@
   function closeModal() { el("modal").hidden = true; }
 
   /* ---------------- 渲染调度 ---------------- */
+  var SECTIONS = {
+    actual: [["actual-city", "城市接待量 Top"], ["actual-prov", "省份接待量 Top"], ["actual-partial", "监测/订单口径城市"]],
+    predict: [["predict-ref", "预订热度信号(多平台)"], ["predict-heat", "城市综合热度榜"]],
+    ticket: [["ticket-sig", "全国出行信号"], ["ticket-flight", "机票预订最热 TOP10"], ["ticket-city", "城市机票紧张度"], ["ticket-route", "长线/赏秋航线增幅"], ["ticket-press", "机票紧张/低价清单"]],
+    county: [["county-ref", "县域参考榜单"], ["county-heat", "县域热度榜"], ["county-dark", "城市黑马榜"]]
+  };
+
+  function buildToc(tab) {
+    var box = el("toc");
+    if (!box) return;
+    var list = (SECTIONS[tab] || []).filter(function (s) { return el(s[0]); });
+    box.innerHTML = "<span class='toc-label'>本页榜单：</span>" + list.map(function (s) {
+      return "<button type='button' class='toc-item' data-target='" + s[0] + "'>" + esc(s[1]) + "</button>";
+    }).join("");
+    box.querySelectorAll(".toc-item").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var t = el(b.getAttribute("data-target"));
+        if (t) t.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+  }
+
   function render() {
     if (state.tab === "actual") renderActual();
     else if (state.tab === "predict") renderPredict();
     else if (state.tab === "ticket") renderTicket();
     else if (state.tab === "county") renderCounty();
+    buildToc(state.tab);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -414,6 +454,15 @@
   el("modalClose").addEventListener("click", closeModal);
   el("modal").addEventListener("click", function (e) { if (e.target === el("modal")) closeModal(); });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeModal(); });
+
+  /* 回到顶部按钮 */
+  var toTop = el("toTop");
+  if (toTop) {
+    toTop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+    window.addEventListener("scroll", function () {
+      if (window.scrollY > 400) toTop.classList.add("show"); else toTop.classList.remove("show");
+    }, { passive: true });
+  }
 
   render();
 })();

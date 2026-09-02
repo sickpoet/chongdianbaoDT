@@ -225,3 +225,43 @@ tbody tr:hover { background: #fff7f7; }
   .stat-grid { grid-template-columns: 1fr; }
   th, td { padding: 8px 9px; }
 }
+
+/* ---------- 本页榜单吸顶导航 ---------- */
+.toc {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  background: #fff; border-bottom: 1px solid var(--line);
+  padding: 10px 16px; margin: 0;
+}
+.toc-label { font-size: 12px; color: var(--muted); font-weight: 600; margin-right: 2px; }
+.toc-item {
+  border: 1px solid var(--line); background: #fff; color: var(--ink);
+  padding: 5px 12px; border-radius: 999px; cursor: pointer;
+  font-size: 12.5px; font-weight: 600; transition: all .15s ease; white-space: nowrap;
+}
+.toc-item:hover { border-color: var(--accent); color: var(--accent); }
+.toc-item:active { background: var(--accent-soft); }
+
+/* ---------- 参考榜内子区块（平台分区） ---------- */
+.sub { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line); }
+.sub:first-of-type { margin-top: 6px; padding-top: 0; border-top: 0; }
+.sub h4 { margin: 0 0 8px; font-size: 14px; color: var(--ink); display: flex; align-items: center; gap: 6px; }
+.sub h4::before { content: ""; width: 4px; height: 14px; border-radius: 2px; background: var(--accent); display: inline-block; }
+.sub-src { font-size: 11.5px; font-weight: 500; color: var(--muted); background: #f3f4f6; border-radius: 6px; padding: 1px 7px; }
+
+/* 锚点跳转时给卡片留白，避免被吸顶导航盖住 */
+.card { scroll-margin-top: 64px; }
+
+/* ---------- 回到顶部按钮 ---------- */
+#toTop {
+  position: fixed; right: 18px; bottom: 18px; z-index: 40;
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  width: 52px; height: 52px; border: 0; border-radius: 14px;
+  background: var(--accent); color: #fff; cursor: pointer;
+  font-size: 18px; line-height: 1; box-shadow: var(--shadow);
+  transition: opacity .2s ease, transform .2s ease;
+}
+#toTop span { font-size: 10px; margin-top: 2px; font-weight: 600; }
+#toTop.show { display: flex; }
+#toTop:hover { transform: translateY(-2px); }
+#toTop:active { transform: translateY(0); }
