@@ -8,5 +8,7 @@ env/
 
 .streamlit/
 
+.workbuddy/
+
 .DS_Store
 Thumbs.db
