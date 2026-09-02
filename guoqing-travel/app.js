@@ -279,7 +279,7 @@
     // 售罄 / 紧张清单
     var pressBox = document.createElement("div");
     pressBox.className = "card";
-    pressBox.innerHTML = "<h3>售罄 / 紧张清单（公开报道级证据）</h3><p class='board-desc'>明确「已售罄」的多为出境长线与南宁→东盟；国内整体仍有低价窗口。</p>";
+    pressBox.innerHTML = "<h3>机票紧张 / 低价清单（公开报道级证据）</h3><p class='board-desc'>国内整体仍有低价窗口；南宁等枢纽出发的高峰日（9/30-10/1、10/6-10/7）票价偏高、折扣票少。</p>";
     var pCols2 = [
       { key: "scope", label: "范围", fmt: function (r) { return esc(r.scope); } },
       { key: "level", label: "等级", fmt: function (r) { return pBadge(r.level); } },
