@@ -669,6 +669,50 @@ def is_county_level_wikidata(label: str, description: str) -> bool:
 
 
 @app.get("/", response_class=HTMLResponse)
+def site_home():
+    nav = """
+    <div class="row">
+      <div class="card" style="text-align:center;">
+        <div style="font-size:42px;line-height:1;">📊</div>
+        <h2 style="margin:10px 0;">国庆旅游热度排行榜</h2>
+        <p class="muted">去年人气 · 今年预测 · 机票紧张度 · 县域黑马</p>
+        <a href="/travel/"><button>进入榜单 →</button></a>
+      </div>
+      <div class="card" style="text-align:center;">
+        <div style="font-size:42px;line-height:1;">🔋</div>
+        <h2 style="margin:10px 0;">共享充电宝投放分析</h2>
+        <p class="muted">地区搜索 · 柜机测算 · 投放简报</p>
+        <a href="/charger"><button class="secondary">进入工具 →</button></a>
+      </div>
+    </div>
+    """
+    return HTMLResponse(content=f"""<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>工具导航</title>
+  <style>
+    body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin: 24px; }}
+    .card {{ border: 1px solid #e5e7eb; border-radius: 10px; padding: 20px; margin: 12px 0; }}
+    .row {{ display: flex; gap: 16px; flex-wrap: wrap; }}
+    .row > * {{ flex: 1; min-width: 280px; }}
+    button {{ padding: 10px 16px; border: 0; border-radius: 8px; background: #2563eb; color: white; cursor: pointer; font-size: 15px; }}
+    button.secondary {{ background: #111827; }}
+    .muted {{ color: #6b7280; }}
+    a {{ text-decoration: none; }}
+    code, pre {{ background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; overflow: auto; white-space: pre-wrap; word-break: break-all; }}
+  </style>
+</head>
+<body>
+  <h1>工具导航</h1>
+  <div class="muted">部署在 Vercel 的轻量工具集合</div>
+  <div style="margin-top: 24px;">{nav}</div>
+</body>
+</html>""")
+
+
+@app.get("/charger", response_class=HTMLResponse)
 def home(
     request: Request,
     query: str | None = None,
@@ -686,7 +730,7 @@ def home(
 
     left_panel_content = """
 <div class="card">
-  <form method="get" action="/">
+  <form method="get" action="/charger">
     <div><b>1) 搜索地区</b></div>
     <input type="text" name="query" placeholder="例如：永康、北京、杭州西湖区" value="{query}" />
     <div style="margin-top:10px;"><button type="submit">搜索</button></div>
@@ -775,7 +819,7 @@ def home(
 
     left_panel_content += """
 <div class="card">
-  <form method="get" action="/">
+  <form method="get" action="/charger">
     <div><b>2) 选择最匹配项</b></div>
     <input type="hidden" name="query" value="{query}" />
 """.format(query=escape(query_val))

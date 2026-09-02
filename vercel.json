@@ -4,9 +4,21 @@
     {
       "src": "vercel_app.py",
       "use": "@vercel/python"
+    },
+    {
+      "src": "travel/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
+    {
+      "src": "/travel/?$",
+      "dest": "/travel/index.html"
+    },
+    {
+      "src": "/travel/(.*)",
+      "dest": "/travel/$1"
+    },
     {
       "src": "/(.*)",
       "dest": "vercel_app.py"
